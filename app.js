@@ -1,5 +1,6 @@
 //this returts us a function that we store in 'express' constant
 const express = require("express");
+const { ObjectId } = require("mongodb");
 
 // importing the exported functions from db.js
 const { connectToDb, getDb } = require("./db");
@@ -37,6 +38,22 @@ app.get("/books", (req, res) => {
     .catch(() => {
       res.status(500).json({ error: "Could not fetch the documents" });
     });
+});
+
+//Fetching single document. :id - is for dynamic id parameters. Using dynamic routes allows us to pass parameters to the route and process based on them. And req.params.id - helps to access the route parameter value
+app.get("/books/:id", (req, res) => {
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("books")
+      .findOne({ _id: ObjectId(req.params.id) })
+      .then((doc) => {
+        res.status(200).json(doc);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "Could not fetch the document" });
+      });
+  } else {
+    res.status(500).json({ error: "Not a valid doc id" });
+  }
 });
 
 //.find() methods returns a cursor object that point to a set of documents outlined by our query. find() method with empty argument points to the whole collection, but if we add filter as an argument it's going to point to a subset of documents based on that filter.
