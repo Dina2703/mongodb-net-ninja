@@ -14,7 +14,7 @@ let db;
 connectToDb((err) => {
   if (!err) {
     //set listen port for our express app.
-    app.listen(3000, () => {
+    app.listen("3000", () => {
       console.log("app listening on port 3000");
     });
     //getDb() returs us the database connection object that we need, and we store it in 'db', now we can interact with  database via 'db' const.
@@ -25,8 +25,24 @@ connectToDb((err) => {
 //routes
 // to handle GET request
 app.get("/books", (req, res) => {
-  res.json({ message: "Welcome to the api" });
+  let books = []; //create an array named books
+
+  db.collection("books")
+    .find()
+    .sort({ author: 1 })
+    .forEach((book) => books.push(book)) //each time around push each book to our new array 'books'. It's an async function, it returns promise. we can tack on a then() when the task is complete.
+    .then(() => {
+      res.status(200).json(books);
+    })
+    .catch(() => {
+      res.status(500).json({ error: "Could not fetch the documents" });
+    });
 });
+
+//.find() methods returns a cursor object that point to a set of documents outlined by our query. find() method with empty argument points to the whole collection, but if we add filter as an argument it's going to point to a subset of documents based on that filter.
+//To get the documents we can use methods like toArray(), forEach().
+//toArray() fetches all the documents that the cursor points to and it puts them into an array for us.
+//forEach() iterates the document one at a time and then allows us to precess each one individually.
 
 //nodemon app     to run express app
 //nodemon ----- is a tool that helps develop node. js based applications by automatically restarting the node application when file changes in the directory are detected
