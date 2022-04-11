@@ -1,6 +1,5 @@
 //this returts us a function that we store in 'express' constant
 const express = require("express");
-const db = require("./db");
 
 // importing the exported functions from db.js
 const { connectToDb, getDb } = require("./db");
@@ -10,7 +9,7 @@ const { connectToDb, getDb } = require("./db");
 const app = express();
 
 //db connection
-//we want to connect to the mongodb database right away before we started listening for requests to this api. When we call our first function for inital connection we need to pass argument, that we called as 'callback' in db.js.
+//we want to connect to the mongodb database right away before we started listening for requests to this api. When we call our first function for inital connection we need to pass argument, that we called as 'cb' in db.js.
 let db;
 connectToDb((err) => {
   if (!err) {
