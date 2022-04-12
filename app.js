@@ -8,6 +8,8 @@ const { connectToDb, getDb } = require("./db");
 //init app & middleware
 //to initialize the express app we have to invoke this 'express' function.
 const app = express();
+//middleware to parse any json coming in on the request
+app.use(express.json());
 
 //db connection
 //we want to connect to the mongodb database right away before we started listening for requests to this api. When we call our first function for inital connection we need to pass argument, that we called as 'cb' in db.js.
@@ -24,7 +26,8 @@ connectToDb((err) => {
 });
 
 //routes
-// to handle GET request
+//---------------------------------------------------
+// to handle GET request(for all data)
 app.get("/books", (req, res) => {
   let books = []; //create an array named books
 
@@ -39,7 +42,8 @@ app.get("/books", (req, res) => {
       res.status(500).json({ error: "Could not fetch the documents" });
     });
 });
-
+//---------------------------------------------------
+//GET request (for single doc).
 //Fetching single document. :id - is for dynamic id parameters. Using dynamic routes allows us to pass parameters to the route and process based on them. And req.params.id - helps to access the route parameter value
 app.get("/books/:id", (req, res) => {
   if (ObjectId.isValid(req.params.id)) {
@@ -55,6 +59,22 @@ app.get("/books/:id", (req, res) => {
     res.status(500).json({ error: "Not a valid doc id" });
   }
 });
+
+//---------------------------------------------------
+//POST request
+app.post("/books", (req, res) => {
+  const book = req.body;
+
+  db.collection("books")
+    .insertOne(book)
+    .then((result) => {
+      res.status(201).json(result);
+    })
+    .catch((error) => {
+      res.status(500).json({ err: "Could not create a new document" });
+    });
+});
+// to POST a new document we use POSTMAN, go to 'bookstore' collection.
 
 //.find() methods returns a cursor object that point to a set of documents outlined by our query. find() method with empty argument points to the whole collection, but if we add filter as an argument it's going to point to a subset of documents based on that filter.
 //To get the documents we can use methods like toArray(), forEach().
