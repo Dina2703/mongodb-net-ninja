@@ -76,6 +76,26 @@ app.post("/books", (req, res) => {
 });
 // to POST a new document we use POSTMAN, go to 'bookstore' collection.
 
+//---------------------------------------------------
+//DELETE request
+app.delete("/books/:id", (req, res) => {
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("books")
+      .deleteOne({ _id: ObjectId(req.params.id) })
+      .then((result) => {
+        res.status(200).json(result);
+        //result: { acknowledged: true, deletedCount: 1 }
+      })
+      .catch((err) => {
+        res.status(500).json({ err: "Could not delte the document" });
+      });
+  } else {
+    res.status(500).json({
+      error: "Not a valid doc id",
+    });
+  }
+});
+
 //.find() methods returns a cursor object that point to a set of documents outlined by our query. find() method with empty argument points to the whole collection, but if we add filter as an argument it's going to point to a subset of documents based on that filter.
 //To get the documents we can use methods like toArray(), forEach().
 //toArray() fetches all the documents that the cursor points to and it puts them into an array for us.
