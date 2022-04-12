@@ -29,11 +29,18 @@ connectToDb((err) => {
 //---------------------------------------------------
 // to handle GET request(for all data)
 app.get("/books", (req, res) => {
+  //current page. used logical operator to add default value.
+  const page = req.query.page || 0;
+  //how many books per page should be send
+  const booksPerPage = 2;
+
   let books = []; //create an array named books
 
   db.collection("books")
     .find()
     .sort({ author: 1 })
+    .skip(page * booksPerPage)
+    .limit(booksPerPage)
     .forEach((book) => books.push(book)) //each time around push each book to our new array 'books'. It's an async function, it returns promise. we can tack on a then() when the task is complete.
     .then(() => {
       res.status(200).json(books);
@@ -115,6 +122,13 @@ app.patch("/books/:id", (req, res) => {
     res.status(500).json({ error: "not a valid doc id" });
   }
 });
+
+//request more data(pagiation) by using query parameters in the endpoint of URL(ex: http://localhost:3000/books?pages=5, where the '?pages=5' is query parameter), to get the query parameter value in express application, access it from request object(we have request, and respons objects, if you remember), like 'req.query.parameterName'.
+//And we use skip() and limit() method to make it work.
+//In PAGINATION, we used to skip and limit for reducing the size of data in the database when they are very large in numbers.
+//to test the code for  pagination:
+
+//http://localhost:3000/books?page=0   - gives first page with fisrt 2 books, then http://localhost:3000/books?page=1    -shows the second page with the next 2 books data.
 
 //.find() methods returns a cursor object that point to a set of documents outlined by our query. find() method with empty argument points to the whole collection, but if we add filter as an argument it's going to point to a subset of documents based on that filter.
 //To get the documents we can use methods like toArray(), forEach().
