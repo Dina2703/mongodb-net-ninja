@@ -96,6 +96,26 @@ app.delete("/books/:id", (req, res) => {
   }
 });
 
+//---------------------------------------------------
+//PATCH request (for updating a sindle doc)
+
+app.patch("/books/:id", (req, res) => {
+  const updates = req.body;
+
+  if (ObjectId.isValid(req.params.id)) {
+    db.collection("books")
+      .updateOne({ _id: ObjectId(req.params.id) }, { $set: updates })
+      .then((result) => {
+        res.status(200).json(result);
+      })
+      .catch((err) => {
+        res.status(500).json({ error: "Could not update the document" });
+      });
+  } else {
+    res.status(500).json({ error: "not a valid doc id" });
+  }
+});
+
 //.find() methods returns a cursor object that point to a set of documents outlined by our query. find() method with empty argument points to the whole collection, but if we add filter as an argument it's going to point to a subset of documents based on that filter.
 //To get the documents we can use methods like toArray(), forEach().
 //toArray() fetches all the documents that the cursor points to and it puts them into an array for us.
